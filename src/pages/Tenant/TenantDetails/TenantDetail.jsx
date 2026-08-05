@@ -4,8 +4,11 @@ import { LuArrowLeft, LuPlus, LuUsers, LuEye, LuEyeOff } from 'react-icons/lu'
 import { useTenants } from '../../../context/TenantContext'
 import * as tenantService from '../../../services/tenantService'
 import TeamMemberFormModal from '../../../components/TeamMemberFormModal'
+import Table from '../../../common/Table/Table'
 
 const TABS = ['Details', 'Members']
+
+const MEMBER_HEADERS = ['ID', 'Tenant ID', 'Email', 'Mobile', 'Password', 'Role', 'Created At', 'Last Login At']
 
 function formatDate(value) {
   if (!value) return '—'
@@ -26,6 +29,7 @@ export default function TenantDetail() {
 
   useEffect(() => {
     if (!tenant) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- idiomatic loading-flag reset before an async fetch
     setMembersLoading(true)
     tenantService.getMembers(tenant.id).then((data) => {
       setMembers(data)
@@ -167,65 +171,40 @@ export default function TenantDetail() {
             </button>
           </div>
 
-          <div className="bg-surface rounded-xl overflow-x-auto border-none shadow-none">
-            {isMembersLoading ? (
-              <div className="flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
-                <p>Loading members…</p>
-              </div>
-            ) : members.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
-                <LuUsers size={28} className="text-primary-text mb-1" />
-                <p className="text-text-primary font-semibold">No team members yet</p>
-                <span className="text-[13px]">Click "Add Team Member" to add the first one.</span>
-              </div>
-            ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">ID</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Tenant ID</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Email</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Mobile</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Password</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Role</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Created At</th>
-                    <th className="text-left text-sm font-semibold text-text-primary px-4 py-4 whitespace-nowrap">Last Login At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((member, index) => (
-                    <tr key={member.id} className={index % 2 === 1 ? 'bg-bg/60' : undefined}>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{member.id}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{member.tenant_id}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{member.email}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{member.mobile || '—'}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span>
-                            {visiblePasswordIds.has(member.id) ? member.password : '••••••••'}
-                          </span>
-                          <button
-                            type="button"
-                            className="inline-flex items-center justify-center bg-transparent border-none text-text-secondary cursor-pointer p-[2px] hover:text-text-primary"
-                            onClick={() => togglePasswordVisibility(member.id)}
-                          >
-                            {visiblePasswordIds.has(member.id) ? (
-                              <LuEyeOff size={14} />
-                            ) : (
-                              <LuEye size={14} />
-                            )}
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{member.role}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{formatDate(member.created_at)}</td>
-                      <td className="px-4 py-4 text-sm text-text-primary whitespace-nowrap">{formatDate(member.last_login_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          {isMembersLoading ? (
+            <div className="flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
+              <p>Loading members…</p>
+            </div>
+          ) : members.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
+              <LuUsers size={28} className="text-primary-text mb-1" />
+              <p className="text-text-primary font-semibold">No team members yet</p>
+              <span className="text-[13px]">Click "Add Team Member" to add the first one.</span>
+            </div>
+          ) : (
+            <Table
+              headers={MEMBER_HEADERS}
+              rows={members.map((member) => [
+                member.id,
+                member.tenant_id,
+                member.email,
+                member.mobile || '—',
+                <div className="flex items-center gap-2">
+                  <span>{visiblePasswordIds.has(member.id) ? member.password : '••••••••'}</span>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center bg-transparent border-none text-text-secondary cursor-pointer p-[2px] hover:text-text-primary"
+                    onClick={() => togglePasswordVisibility(member.id)}
+                  >
+                    {visiblePasswordIds.has(member.id) ? <LuEyeOff size={14} /> : <LuEye size={14} />}
+                  </button>
+                </div>,
+                member.role,
+                formatDate(member.created_at),
+                formatDate(member.last_login_at),
+              ])}
+            />
+          )}
         </div>
       )}
 
