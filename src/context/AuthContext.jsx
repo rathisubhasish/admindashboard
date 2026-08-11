@@ -1,29 +1,60 @@
-import { createContext, useCallback, useContext, useState } from 'react'
+import { createContext, useCallback, useContext, useState } from "react";
+import {api, clearToken, setToken} from "../services/apiClient.js";
 
-const AuthContext = createContext(null)
+const AuthContext = createContext(null);
 
-const STORAGE_KEY = 'admindashboard.auth.email'
+const STORAGE_KEY = "admindashboard.auth.user";
 
 export function AuthProvider({ children }) {
-  const [email, setEmail] = useState(() => localStorage.getItem(STORAGE_KEY))
+  const [user, setUser] = useState(() => {
+    const result = localStorage.getItem(STORAGE_KEY);
+    return JSON.parse(result);
+  });
 
-  const login = useCallback((loginEmail) => {
-    localStorage.setItem(STORAGE_KEY, loginEmail)
-    setEmail(loginEmail)
-  }, [])
+  const login = useCallback(async (loginEmail, loginPassword) => {
+    try {
+      const result = await api.post("/auth/admin/login", {
+        email: loginEmail,
+        password: loginPassword,
+      });
+
+      if (result.token) {
+        setToken(result.token);
+      }
+
+      const loggedInUser = JSON.stringify(result.user) || loginEmail;
+
+      localStorage.setItem(STORAGE_KEY, loggedInUser);
+      setUser(result?.user);
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      console.error("Login failed:", error);
+
+      return {
+        success: false,
+        error,
+      };
+    }
+
+  }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
-    setEmail(null)
-  }, [])
+    localStorage.removeItem(STORAGE_KEY);
+    clearToken();
+    setUser(null);
+  }, []);
 
-  const value = { email, isAuthenticated: Boolean(email), login, logout }
+  const value = { user, isAuthenticated: Boolean(user), login, logout };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
-  return ctx
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 }

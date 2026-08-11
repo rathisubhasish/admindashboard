@@ -7,17 +7,24 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.7.1",
     "@tailwindcss/vite": "^4.3.3",
-    "motion": "^12.43.0",
     "axios": "^1.19.0",
+    "clsx": "^2.1.1",
+    "motion": "^12.43.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-hook-form": "^7.85.0",
     "react-icons": "^5.7.0",
     "react-router-dom": "^7.18.2",
-    "tailwindcss": "^4.3.3"
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -28,6 +35,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.7.0",
+    "prettier": "^3.9.6",
     "vite": "^8.1.1"
   }
 }

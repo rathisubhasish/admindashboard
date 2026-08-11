@@ -1,6 +1,12 @@
-import { LuX } from 'react-icons/lu'
+import { LuX } from "react-icons/lu";
 
-export default function Modal({ title, onClose, children, actions, width = 560 }) {
+export default function Modal({
+  title,
+  onClose,
+  children,
+  actions,
+  width = 560,
+}) {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center p-[20px] z-50 bg-[rgba(15,23,42,0.4)]"
@@ -24,8 +30,10 @@ export default function Modal({ title, onClose, children, actions, width = 560 }
 
         {children}
 
-        {actions && <div className="flex justify-end gap-[10px] mt-[24px]">{actions}</div>}
+        {actions && (
+          <div className="flex justify-end gap-[10px] mt-[24px]">{actions}</div>
+        )}
       </div>
     </div>
-  )
+  );
 }
