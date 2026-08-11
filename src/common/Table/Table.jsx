@@ -1,43 +1,70 @@
-export default function Table({ headers = [], rows = [], actions, emptyMessage = 'No data available' }) {
-  const columnCount = headers.length + (actions ? 1 : 0)
+export default function Table({
+  headers = [],
+  rows = [],
+  actions,
+  emptyMessage = "No data available",
+}) {
+  const columnCount = headers.length + (actions ? 1 : 0);
 
   return (
-    <div className="w-full overflow-x-auto border border-border rounded-[10px]">
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-border bg-primary-light">
-            {headers.map((header, index) => (
-              <th
-                key={index}
-                className="px-[14px] py-[10px] text-[12px] font-semibold text-text-secondary uppercase tracking-wide"
-              >
-                {header}
-              </th>
-            ))}
-            {actions && <th className="px-[14px] py-[10px]" />}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={columnCount} className="px-[14px] py-[24px] text-center text-[13px] text-text-secondary">
-                {emptyMessage}
-              </td>
+    <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-border bg-surface">
+      <div className="w-full min-w-0 max-w-full overflow-x-auto overflow-y-hidden">
+        <table className="w-max min-w-full border-collapse">
+          <thead>
+            <tr className="border-b border-border">
+              {headers.map((header, index) => (
+                <th
+                  key={index}
+                  className="whitespace-nowrap bg-surface px-[14px] py-[10px] text-left text-[13px] font-semibold text-primary"
+                >
+                  {header}
+                </th>
+              ))}
+
+              {actions && (
+                <th className="sticky right-0 z-20 w-[100px] min-w-[100px] whitespace-nowrap border-l border-border bg-surface px-[14px] py-[10px] text-left text-[13px] font-semibold text-primary">
+                  Actions
+                </th>
+              )}
             </tr>
-          ) : (
-            rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="border-b border-border last:border-b-0 hover:bg-primary-light">
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex} className="px-[14px] py-[10px] text-[14px] text-text-primary">
-                    {cell}
-                  </td>
-                ))}
-                {actions && <td className="px-[14px] py-[10px] text-right">{actions(row, rowIndex)}</td>}
+          </thead>
+
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columnCount}
+                  className="px-[14px] py-[24px] text-center text-[13px] text-text-secondary"
+                >
+                  {emptyMessage}
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              rows.map((row, rowIndex) => (
+                <tr
+                  key={rowIndex}
+                  className="border-b border-border last:border-b-0 hover:bg-bg"
+                >
+                  {row.map((cell, cellIndex) => (
+                    <td
+                      key={cellIndex}
+                      className="whitespace-nowrap px-[14px] py-[10px] text-[14px] text-text-primary"
+                    >
+                      {cell}
+                    </td>
+                  ))}
+
+                  {actions && (
+                    <td className="sticky right-0 z-10 w-[100px] min-w-[100px] whitespace-nowrap border-l border-border bg-surface px-[14px] py-[10px] text-right">
+                      {actions(row, rowIndex)}
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }
