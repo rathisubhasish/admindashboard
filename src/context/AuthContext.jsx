@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState } from "react";
-import {api, clearToken, setToken} from "../services/apiClient.js";
+import { api, clearToken, setToken } from "../services/apiClient.js";
 
 const AuthContext = createContext(null);
 
@@ -33,13 +33,11 @@ export function AuthProvider({ children }) {
       };
     } catch (error) {
       console.error("Login failed:", error);
-
       return {
         success: false,
         error,
       };
     }
-
   }, []);
 
   const logout = useCallback(() => {

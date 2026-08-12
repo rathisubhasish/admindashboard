@@ -2,126 +2,167 @@ import { useState } from "react";
 import { LuUpload } from "react-icons/lu";
 import Modal from "../common/Modal/Modal";
 import Input from "../common/Input/Input";
-
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { tenantSchema } from "../schemas/tenant/tenantSchema.js";
+import Button from "../common/Button/Button.jsx";
+import ErrorMessage from "../common/Error/Error.jsx";
+import { useTenants } from "../context/TenantContext.jsx";
 const EMPTY_FORM = {
   name: "",
   legalName: "",
-  logoFile: null,
-  logoPreview: "",
   mobile: "",
   email: "",
   address: "",
   city: "",
   state: "",
-  pincode: "",
+  pinCode: "",
   country: "",
 };
-
-export default function TenantFormModal({ onClose, onSubmit }) {
-  const [form, setForm] = useState(EMPTY_FORM);
-
-  function updateField(field, value) {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  }
-
+export default function TenantFormModal({ onClose }) {
+  const { addTenant } = useTenants();
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [apiError, setApiError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(tenantSchema),
+    defaultValues: EMPTY_FORM,
+  });
   function handleLogoChange(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    updateField("logoFile", file);
-    updateField("logoPreview", URL.createObjectURL(file));
+    setLogoFile(file);
+    setLogoPreview(URL.createObjectURL(file));
   }
+  async function onFormSubmit(data) {
+    setApiError("");
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!form.name.trim() || !form.email.trim()) return;
-    onSubmit(form);
+    const result = await addTenant({
+      ...data,
+      logoFile,
+    });
+
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
+
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
+
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to create tenant");
+      }
+
+      return;
+    }
+
+    onClose();
   }
-
   return (
     <Modal title="Add Tenant" onClose={onClose}>
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col items-center gap-[8px] mb-[20px]">
-          <label className="w-[72px] h-[72px] rounded-full border-[1.5px] border-dashed border-border bg-primary-light text-primary-text flex items-center justify-center cursor-pointer overflow-hidden">
-            {form.logoPreview ? (
-              <img
-                src={form.logoPreview}
-                alt="Logo preview"
-                className="w-full h-full object-cover"
+      <div className="w-full overflow-x-hidden">
+        {apiError && <ErrorMessage message={apiError} variant={"background"} />}
+        <br />
+        <form onSubmit={handleSubmit(onFormSubmit)}>
+          {/* Logo */}
+          <div className="mb-[20px] flex flex-col items-center gap-[8px]">
+            <label className="flex h-[72px] w-[72px] cursor-pointer items-center justify-center overflow-hidden rounded-full border-[1.5px] border-dashed border-border bg-primary-light text-primary-text">
+              {logoPreview ? (
+                <img
+                  src={logoPreview}
+                  alt="Logo preview"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <LuUpload size={20} />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleLogoChange}
+                hidden
               />
-            ) : (
-              <LuUpload size={20} />
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleLogoChange}
-              hidden
+            </label>
+            <span className="text-[12px] text-text-secondary">Upload logo</span>
+          </div>
+          {/* Fields */}
+          <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px]">
+            <Input
+              label="Name*"
+              {...register("name")}
+              showErrorIcon={false}
+              error={errors.name?.message}
             />
-          </label>
-          <span className="text-[12px] text-text-secondary">Upload logo</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px]">
-          <Input
-            label="Name"
-            required
-            value={form.name}
-            onChange={(e) => updateField("name", e.target.value)}
-          />
-          <Input
-            label="Legal Name"
-            value={form.legalName}
-            onChange={(e) => updateField("legalName", e.target.value)}
-          />
-          <Input
-            label="Mobile"
-            value={form.mobile}
-            onChange={(e) => updateField("mobile", e.target.value)}
-          />
-          <Input
-            label="Email"
-            type="email"
-            required
-            value={form.email}
-            onChange={(e) => updateField("email", e.target.value)}
-          />
-          <Input
-            label="Address"
-            containerClassName="col-span-full"
-            value={form.address}
-            onChange={(e) => updateField("address", e.target.value)}
-          />
-          <Input
-            label="City"
-            value={form.city}
-            onChange={(e) => updateField("city", e.target.value)}
-          />
-          <Input
-            label="State"
-            value={form.state}
-            onChange={(e) => updateField("state", e.target.value)}
-          />
-          <Input
-            label="Pincode"
-            value={form.pincode}
-            onChange={(e) => updateField("pincode", e.target.value)}
-          />
-          <Input
-            label="Country"
-            value={form.country}
-            onChange={(e) => updateField("country", e.target.value)}
-          />
-        </div>
-
-        <div className="flex justify-end gap-[10px] mt-[24px]">
-          <button type="button" className="btn-secondary" onClick={onClose}>
-            Cancel
-          </button>
-          <button type="submit" className="btn-primary">
-            Add Tenant
-          </button>
-        </div>
-      </form>
+            <Input
+              label="Legal Name"
+              {...register("legalName")}
+              showErrorIcon={false}
+              error={errors.legalName?.message}
+            />
+            <Input
+              label="Mobile*"
+              {...register("mobile")}
+              showErrorIcon={false}
+              error={errors.mobile?.message}
+            />
+            <Input
+              label="Email*"
+              type="email"
+              {...register("email")}
+              showErrorIcon={false}
+              error={errors.email?.message}
+            />
+            <Input
+              label="Address*"
+              containerClassName="col-span-full"
+              {...register("address")}
+              showErrorIcon={false}
+              error={errors.address?.message}
+            />
+            <Input
+              label="City*"
+              {...register("city")}
+              error={errors.city?.message}
+              showErrorIcon={false}
+            />
+            <Input
+              label="State*"
+              {...register("state")}
+              error={errors.state?.message}
+              showErrorIcon={false}
+            />
+            <Input
+              label="Pincode*"
+              {...register("pinCode")}
+              error={errors.pinCode?.message}
+              showErrorIcon={false}
+            />
+            <Input
+              label="Country*"
+              {...register("country")}
+              error={errors.country?.message}
+              showErrorIcon={false}
+            />
+          </div>
+          {/* Actions */}
+          <div className="mt-[24px] flex justify-end gap-[10px] ">
+            <Button
+              type="submit"
+              variant={"primary"}
+              disabled={isSubmitting}
+              loading={isSubmitting}
+            >
+              {isSubmitting ? "Adding" : "Add Tenant"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </Modal>
   );
 }

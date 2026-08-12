@@ -8,26 +8,31 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Tenants from "./pages/Tenant/Tenants";
 import TenantDetail from "./pages/Tenant/TenantDetails/TenantDetail";
 import Settings from "./pages/Settings/Settings";
+import { AdminProvider } from "./context/AdminContext.jsx";
+import Admins from "./pages/Admins/Admins.jsx";
 
 function App() {
   return (
     <AuthProvider>
-      <TenantProvider>
-        <Routes>
-          <Route path="/login" element={<Login />} />
+      <AdminProvider>
+        <TenantProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="tenants" element={<Tenants />} />
-              <Route path="tenants/:tenantId" element={<TenantDetail />} />
-              <Route path="settings" element={<Settings />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="tenants" element={<Tenants />} />
+                <Route path="tenants/:tenantId" element={<TenantDetail />} />
+                <Route path="admins" element={<Admins />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </TenantProvider>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </TenantProvider>
+      </AdminProvider>
     </AuthProvider>
   );
 }
