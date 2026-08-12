@@ -30,5 +30,4 @@ export const tenantMemberSchema = z.object({
         .string()
         .trim()
         .regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number")
-        .optional()
 });

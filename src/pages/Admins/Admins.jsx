@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAdmins } from "../../context/AdminContext.jsx";
 import { LuBuilding2, LuEye, LuPlus, LuSearch } from "react-icons/lu";
 import Button from "../../common/Button/Button.jsx";
-import TenantCardSkeleton from "../../components/TenantCard/TenantCardSkeleton.jsx";
 import Table from "../../common/Table/Table.jsx";
-import { AiFillDelete } from "react-icons/ai";
+import TableSkeleton from "../../common/Table/TableSkeleton.jsx";
 
 const ADMIN_HEADERS = ["First Name", "Last Name", "Email"];
 
@@ -92,7 +91,7 @@ export default function Admins() {
       </Button>
 
       {isLoading ? (
-        <TenantCardSkeleton count={8} />
+        <TableSkeleton count={8} />
       ) : error ? (
         <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
           <LuBuilding2 size={28} className="text-primary-text mb-1" />

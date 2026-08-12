@@ -19,9 +19,9 @@ export function TenantProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      const data = await tenantService.getTenants();
+      const response = await tenantService.getTenants();
 
-      setTenants(data ?? []);
+      setTenants(response.data ?? []);
     } catch (error) {
       console.error("Failed to load tenants:", error);
       setError(error);

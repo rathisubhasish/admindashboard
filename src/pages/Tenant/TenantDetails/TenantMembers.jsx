@@ -45,9 +45,9 @@ export default function TenantMembers({ id }) {
             setMembersLoading(true);
             setError(null);
 
-            const data = await tenantService.getMembers(id);
+            const response = await tenantService.getMembers(id);
 
-            setMembers(data ?? []);
+            setMembers(response.data ?? []);
         } catch (error) {
             console.error("Failed to load tenants:", error);
             setError(error);
