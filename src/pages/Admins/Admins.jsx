@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmins } from "../../context/AdminContext.jsx";
-import { LuBuilding2, LuEye, LuPlus, LuSearch } from "react-icons/lu";
+import { LuBuilding2, LuPlus, LuSearch } from "react-icons/lu";
 import Button from "../../common/Button/Button.jsx";
 import Table from "../../common/Table/Table.jsx";
 import TableSkeleton from "../../common/Table/TableSkeleton.jsx";
+import AdminFormModal from "../../components/AdminFormModal.jsx";
 
 const ADMIN_HEADERS = ["First Name", "Last Name", "Email"];
 
@@ -125,6 +126,7 @@ export default function Admins() {
           </div>
         </div>
       )}
+        {isModalOpen && <AdminFormModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import Button from "../../../common/Button/Button.jsx";
 import * as tenantService from "../../../services/tenantService.js";
-import { LuEye, LuEyeOff, LuPlus, LuUsers} from "react-icons/lu";
+import { LuPlus, LuUsers} from "react-icons/lu";
 import Table from "../../../common/Table/Table.jsx";
 import TeamMemberFormModal from "../../../components/TeamMemberFormModal.jsx";
 import TableSkeleton from "../../../common/Table/TableSkeleton.jsx";
@@ -11,7 +11,6 @@ export default function TenantMembers({ id }) {
   const [isMembersLoading, setMembersLoading] = useState(true);
   const [error, setError] = useState("");
   const [isModalOpen, setModalOpen] = useState(false);
-  const [visiblePasswordIds, setVisiblePasswordIds] = useState(() => new Set());
   const [needRefresh, setNeedRefresh] = useState(false);
 
   function formatDate(value) {
@@ -21,26 +20,15 @@ export default function TenantMembers({ id }) {
 
   const MEMBER_HEADERS = [
     "ID",
-    "Tenant ID",
     "Email",
     "Mobile",
-    "Password",
     "Role",
     "Created At",
     "Last Login At",
   ];
 
 
-  function togglePasswordVisibility(memberId) {
-    setVisiblePasswordIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(memberId)) next.delete(memberId);
-      else next.add(memberId);
-      return next;
-    });
-  }
-
-    const loadTenants = useCallback(async () => {
+    const loadMembers = useCallback(async () => {
         try {
             setMembersLoading(true);
             setError(null);
@@ -57,8 +45,8 @@ export default function TenantMembers({ id }) {
     }, [id]);
 
     useEffect(() => {
-        loadTenants();
-    }, [loadTenants, needRefresh]);
+        loadMembers();
+    }, [loadMembers, needRefresh]);
 
   return (
     <div className="overflow-y-scroll mb-24">
@@ -115,27 +103,8 @@ export default function TenantMembers({ id }) {
             headers={MEMBER_HEADERS}
             rows={members.map((member) => [
               member.id || "—",
-              member.tenantId || "—",
               member.email || "—",
               member.mobile || "—",
-              <div className="flex items-center gap-2">
-                <span>
-                  {visiblePasswordIds.has(member.id)
-                    ? member.password
-                    : "••••••••"}
-                </span>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center bg-transparent border-none text-text-secondary cursor-pointer p-[2px] hover:text-text-primary"
-                  onClick={() => togglePasswordVisibility(member.id)}
-                >
-                  {visiblePasswordIds.has(member.id) ? (
-                    <LuEyeOff size={14} />
-                  ) : (
-                    <LuEye size={14} />
-                  )}
-                </button>
-              </div>,
               member.role,
               formatDate(member.created_at),
               formatDate(member.last_login_at),
