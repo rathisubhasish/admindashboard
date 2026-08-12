@@ -112,7 +112,7 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
         </nav>{" "}
         <Button
           variant="secondary"
-          className="w-full !text-primary !border-primary mb-4"
+          className="w-full !text-primary !border-primary hover:!text-white mb-4"
           onClick={handleLogout}
         >
           <span>

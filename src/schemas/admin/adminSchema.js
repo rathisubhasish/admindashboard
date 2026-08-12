@@ -1,6 +1,6 @@
-import { z } from "zod";
+import {z} from "zod";
 
-export const tenantMemberSchema = z.object({
+export const adminSchema = z.object({
     firstName: z
         .string()
         .trim()
@@ -26,8 +26,4 @@ export const tenantMemberSchema = z.object({
         .trim()
         .min(1, "Password is required"),
 
-    mobile: z
-        .string()
-        .trim()
-        .regex(/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number")
-});
+})

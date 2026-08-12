@@ -35,9 +35,26 @@ export function AdminProvider({ children }) {
   }, [loadAdmins]);
 
   const addAdmin = useCallback(async (form) => {
-    const admin = await adminService.createAdmin(form);
-    setAdmins((prev) => [...prev, admin]);
-    return admin;
+    try {
+      const result = await adminService.createAdmin(form);
+
+      if (!result.success) {
+        return result;
+      }
+
+      const newAdmin = result.data;
+
+      setAdmins((prev) => [...prev, newAdmin]);
+
+      return result;
+    } catch (error) {
+      console.error("Failed to create admin:", error);
+
+      return {
+        success: false,
+        error: error,
+      };
+    }
   }, []);
 
   const value = {

@@ -59,13 +59,13 @@ export default function TeamMemberFormModal({ onClose, id, setNeedRefresh }) {
       <form onSubmit={handleSubmit(onFormSubmit)}>
         <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px]">
           <Input
-              label="First Name"
+              label="First Name*"
               {...register("firstName")}
               showErrorIcon={false}
               error={errors.firstName?.message}
           />
           <Input
-              label="Last Name"
+              label="Last Name*"
               {...register("lastName")}
               showErrorIcon={false}
               error={errors.lastName?.message}
@@ -78,7 +78,7 @@ export default function TeamMemberFormModal({ onClose, id, setNeedRefresh }) {
               error={errors.email?.message}
           />
           <Input
-              label="Mobile"
+              label="Mobile*"
               {...register("mobile")}
               showErrorIcon={false}
               error={errors.mobile?.message}

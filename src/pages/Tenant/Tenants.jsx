@@ -153,7 +153,7 @@ export default function Tenants() {
       ) : (
         <div className="w-full min-w-0 max-w-full overflow-hidden">
           {cardView ? (
-            <TenantCardView filteredTenants={filteredTenants} />
+            <TenantCardView filteredTenants={filteredTenants ?? []} />
           ) : (
             <div className="w-full min-w-0 max-w-full overflow-x-auto">
               <Table

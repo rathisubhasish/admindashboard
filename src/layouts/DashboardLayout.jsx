@@ -20,7 +20,9 @@ export default function DashboardLayout() {
         {/* Mobile Header */}
         <div className="fixed left-0 right-0 top-0 z-30 flex w-full items-center justify-between bg-white px-6 py-4 lg:hidden">
           <div className="flex min-w-0 items-center gap-2">
-            <LuBox size={34} className="text-primary" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+              <LuBox size={18} />{" "}
+            </div>
 
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-text-primary">
