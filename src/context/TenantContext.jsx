@@ -12,13 +12,27 @@ const TenantContext = createContext(null);
 export function TenantProvider({ children }) {
   const [tenants, setTenants] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const loadTenants = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const data = await tenantService.getTenants();
+
+      setTenants(data ?? []);
+    } catch (error) {
+      console.error("Failed to load tenants:", error);
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    tenantService.getTenants().then((data) => {
-      setTenants(data);
-      setLoading(false);
-    });
-  }, []);
+    loadTenants();
+  }, [loadTenants]);
 
   const addTenant = useCallback(async (form) => {
     const tenant = await tenantService.createTenant(form);
@@ -28,12 +42,21 @@ export function TenantProvider({ children }) {
 
   const getTenantById = useCallback(
     (tenantId) => {
-      return tenants.find((tenant) => tenant.id === tenantId) ?? null;
+      return (
+        tenants.find((tenant) => String(tenant.id) === String(tenantId)) ?? null
+      );
     },
     [tenants],
   );
 
-  const value = { tenants, isLoading, addTenant, getTenantById };
+  const value = {
+    tenants,
+    isLoading,
+    error,
+    addTenant,
+    getTenantById,
+    loadTenants,
+  };
 
   return (
     <TenantContext.Provider value={value}>{children}</TenantContext.Provider>

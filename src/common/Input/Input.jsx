@@ -4,6 +4,7 @@ export default function Input({
   label,
   error,
   required,
+  showErrorIcon = true,
   className = "",
   containerClassName = "",
   ...props
@@ -26,7 +27,7 @@ export default function Input({
         required={required}
         {...props}
       />
-      {error && <ErrorMessage message={error} />}
+      {error && <ErrorMessage message={error} showIcon={showErrorIcon} />}
     </label>
   );
 }

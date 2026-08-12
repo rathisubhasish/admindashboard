@@ -5,10 +5,10 @@ import {
   LuBuilding2,
   LuSettings,
   LuLogOut,
-  LuMenu,
   LuX,
   LuBox,
 } from "react-icons/lu";
+import { RiAdminLine } from "react-icons/ri";
 import { useAuth } from "../context/AuthContext";
 import Button from "../common/Button/Button.jsx";
 import Tabs from "../common/Tabs/Tabs.jsx";
@@ -27,6 +27,12 @@ const NAV_ITEMS = [
     end: false,
   },
   {
+    to: "/admins",
+    label: "Manage Admins",
+    icon: RiAdminLine,
+    end: false,
+  },
+  {
     to: "/settings",
     label: "Settings",
     icon: LuSettings,
@@ -35,7 +41,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
-  const { email, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -59,7 +65,9 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
         />
       )}{" "}
       <aside
-        className={` fixed left-0 top-0 z-50 flex h-screen min-w-[200px] max-w-[200px] flex-col border-r border-border bg-surface px-4 transition-transform duration-300 ease-in-out lg:sticky lg:z-30 lg:translate-x-0 lg:w-[240px] ${isMobileOpen ? "translate-x-0" : "-translate-x-full"} `}
+        className={` fixed left-0 top-0 z-50 flex h-screen min-w-[200px] max-w-[200px] flex-col border-r border-border bg-surface px-4 transition-transform duration-300 ease-in-out lg:sticky lg:z-30 lg:translate-x-0 lg:w-[240px] ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        } `}
       >
         <div className="flex items-center justify-between px-2 pt-5 pb-6">
           <div className="flex min-w-0 items-center gap-2">
@@ -68,11 +76,11 @@ export default function Sidebar({ isMobileOpen, setIsMobileOpen }) {
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-text-primary">
-                Admin
+                {user?.firstName}
               </p>
-              {email && (
+              {user?.email && (
                 <p className="max-w-[170px] truncate text-xs text-text-secondary">
-                  {email}
+                  {user?.email}
                 </p>
               )}
             </div>

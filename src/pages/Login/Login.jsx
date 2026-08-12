@@ -7,13 +7,13 @@ import Button from "../../common/Button/Button.jsx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../../schemas/auth/loginSchema";
-import {useState} from "react";
+import { useState } from "react";
 import ErrorMessage from "../../common/Error/Error.jsx";
 
 export default function Login() {
   const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const [apiError, setApiError] = useState('');
+  const [apiError, setApiError] = useState("");
   const {
     register,
     handleSubmit,
@@ -69,7 +69,7 @@ export default function Login() {
               className="flex flex-col gap-4 border border-gray-100 px-8 py-12 rounded-2xl shadow"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <ErrorMessage variant="background" message={apiError}/>
+              <ErrorMessage variant="background" message={apiError} />
               <Input
                 label="Email"
                 error={errors.email?.message}
@@ -87,8 +87,12 @@ export default function Login() {
 
               <span className="" />
 
-              <Button type="submit" variant="primary" loading={isSubmitting}
-                      disabled={isSubmitting}>
+              <Button
+                type="submit"
+                variant="primary"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+              >
                 Login
               </Button>
             </form>

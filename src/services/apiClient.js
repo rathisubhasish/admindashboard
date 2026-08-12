@@ -32,6 +32,7 @@ export class ApiError extends Error {
     this.status = status; // HTTP status, or 0 for network/timeout errors
     this.data = data; // parsed response body, if any
     this.code = code; // axios code, e.g. 'ECONNABORTED' on timeout
+    this.errors = data?.errors || {};
   }
 }
 

@@ -9,7 +9,7 @@ export default function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center p-[20px] z-50 bg-[rgba(15,23,42,0.4)]"
+      className="fixed inset-0 flex items-center justify-center p-[20px] z-50 bg-[rgba(15,23,42,0.4)] overflow-x-hidden"
       onClick={onClose}
     >
       <div

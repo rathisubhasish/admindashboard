@@ -5,10 +5,11 @@ import TenantFormModal from "../../components/TenantFormModal";
 import Table from "../../common/Table/Table";
 import { useTenants } from "../../context/TenantContext";
 import Button from "../../common/Button/Button.jsx";
-import TenantCard from "../../components/TenantCard/TenantCard.jsx";
 import TenantCardView from "./TenantCardView.jsx";
 import { TbTableImport } from "react-icons/tb";
 import { BiCard } from "react-icons/bi";
+import TenantCardSkeleton from "../../components/TenantCard/TenantCardSkeleton.jsx";
+import TableSkeleton from "../../common/Table/TableSkeleton.jsx";
 
 const TENANT_HEADERS = [
   "Logo",
@@ -21,10 +22,11 @@ const TENANT_HEADERS = [
   "State",
   "Pincode",
   "Country",
+  "Verified",
 ];
 
 export default function Tenants() {
-  const { tenants, isLoading, addTenant } = useTenants();
+  const { tenants, isLoading, error } = useTenants();
   const [isModalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [cardView, setCardView] = useState(true);
@@ -40,13 +42,8 @@ export default function Tenants() {
     );
   }, [tenants, search]);
 
-  async function handleAddTenant(form) {
-    await addTenant(form);
-    setModalOpen(false);
-  }
-
   return (
-    <div className="relative">
+    <div className="relative mb-24">
       <h1 className="text-xl">Tenants</h1>
       <p className="text-sm text-text-secondary mt-1">
         Manage all tenants in your workspace
@@ -67,9 +64,13 @@ export default function Tenants() {
           />
         </div>
         <div className="w-full flex justify-end items-center gap-6">
-          <p className=" text-text-secondary">
-            {filteredTenants.length} Tenants
-          </p>
+          {filteredTenants.length ? (
+            <p className=" text-text-secondary">
+              {filteredTenants.length} Tenants
+            </p>
+          ) : (
+            ""
+          )}
           <p
             className="flex items-center cursor-pointer gap-1 text-text-secondary"
             onClick={() => setCardView(!cardView)}
@@ -125,8 +126,19 @@ export default function Tenants() {
       </Button>
 
       {isLoading ? (
-        <div className="bg-surface border border-border rounded-xl shadow-card flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
-          <p>Loading tenants…</p>
+          cardView
+          ?
+        <TenantCardSkeleton count={8} />
+              :
+              <TableSkeleton />
+      ) : error ? (
+        <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
+          <LuBuilding2 size={28} className="text-primary-text mb-1" />
+          <p className="text-text-primary font-semibold">
+            Failed to load tenants
+          </p>
+
+          <span className="text-[13px]">Please try again later.</span>
         </div>
       ) : filteredTenants.length === 0 ? (
         <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary w-full">
@@ -168,6 +180,7 @@ export default function Tenants() {
                   tenant.state || "—",
                   tenant.pincode || "—",
                   tenant.country || "—",
+                  (tenant.verified ? "true" : "false") || "—",
                 ])}
                 actions={(_row, index) => (
                   <button
@@ -187,12 +200,7 @@ export default function Tenants() {
         </div>
       )}
 
-      {isModalOpen && (
-        <TenantFormModal
-          onClose={() => setModalOpen(false)}
-          onSubmit={handleAddTenant}
-        />
-      )}
+      {isModalOpen && <TenantFormModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 }
