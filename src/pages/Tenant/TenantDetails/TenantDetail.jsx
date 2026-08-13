@@ -3,8 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LuArrowLeft, LuPlus, LuUsers, LuEye, LuEyeOff } from "react-icons/lu";
 import { useTenants } from "../../../context/TenantContext";
 import TenantMembers from "./TenantMembers.jsx";
+import Button from "../../../common/Button/Button.jsx";
+import Toggle from "../../../common/Toggle/Toggle.jsx";
 
-const TABS = ["Details", "Members"];
+const TABS = ["Details", "Members", "Settings"];
 
 export default function TenantDetail() {
   const { tenantId } = useParams();
@@ -13,6 +15,7 @@ export default function TenantDetail() {
   const tenant = getTenantById(tenantId);
 
   const [activeTab, setActiveTab] = useState("Details");
+  const [status, setStatus] = useState(true);
 
   const data = [
     {
@@ -162,6 +165,25 @@ export default function TenantDetail() {
       )}
 
       {activeTab === "Members" && <TenantMembers id={tenant?.id} />}
+
+      {activeTab === "Settings" && (
+          <div>
+            <br />
+            <div className="w-full flex gap-4 justify-between items-center bg-bg px-4 py-4 rounded-lg">
+              <div>
+                <p className="text-xl font-medium">Disable Account</p>
+                <p className="text-sm">Enable/Disable this tenant</p>
+              </div>
+              <div>
+                <Toggle
+                    variant="primary"
+                    value={status}
+                    onChange={setStatus}
+                />
+              </div>
+            </div>
+          </div>
+      )}
     </div>
   );
 }
