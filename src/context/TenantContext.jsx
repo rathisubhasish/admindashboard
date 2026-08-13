@@ -49,6 +49,29 @@ export function TenantProvider({ children }) {
     [tenants],
   );
 
+  const deleteTenant = useCallback(async (id) => {
+    try {
+      const result = await tenantService.deleteTenant(id);
+
+      if (!result.success) {
+        return result;
+      }
+
+      setTenants((prev) =>
+          prev.filter((tenant) => tenant.id !== id)
+      );
+
+      return result;
+    } catch (error) {
+      console.error("Failed to delete tenant:", error);
+
+      return {
+        success: false,
+        error,
+      };
+    }
+  }, []);
+
   const value = {
     tenants,
     isLoading,
@@ -56,6 +79,7 @@ export function TenantProvider({ children }) {
     addTenant,
     getTenantById,
     loadTenants,
+    deleteTenant,
   };
 
   return (
