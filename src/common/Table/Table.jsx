@@ -2,6 +2,7 @@ export default function Table({
   headers = [],
   rows = [],
   actions,
+  data=[],
   emptyMessage = "No data available",
 }) {
   const columnCount = headers.length + (actions ? 1 : 0);
@@ -55,8 +56,8 @@ export default function Table({
                   ))}
 
                   {actions && (
-                    <td className="sticky right-0 z-10 w-[100px] min-w-[100px] whitespace-nowrap border-l border-border bg-surface px-[14px] py-[10px] text-right">
-                      {actions(row, rowIndex)}
+                    <td className="sticky right-0 z-10 w-[100px] min-w-[100px] whitespace-nowrap border-l border-border bg-surface px-[14px] py-[10px] text-right flex justify-center items-center">
+                      {actions(data?.[rowIndex], rowIndex)}
                     </td>
                   )}
                 </tr>

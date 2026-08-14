@@ -25,3 +25,8 @@ export async function getMembers(tenantId) {
   const response = await api.get(`/admin/tenant/${tenantId}/user`);
   return response;
 }
+
+export async function deleteTenant(id){
+  const response = await api.delete(`/admin/tenant/${id}`);
+  return response;
+}

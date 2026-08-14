@@ -3,16 +3,23 @@ import { useNavigate, useParams } from "react-router-dom";
 import { LuArrowLeft, LuPlus, LuUsers, LuEye, LuEyeOff } from "react-icons/lu";
 import { useTenants } from "../../../context/TenantContext";
 import TenantMembers from "./TenantMembers.jsx";
+import Button from "../../../common/Button/Button.jsx";
+import Toggle from "../../../common/Toggle/Toggle.jsx";
+import Modal from "../../../common/Modal/Modal.jsx";
+import ErrorMessage from "../../../common/Error/Error.jsx";
 
-const TABS = ["Details", "Members"];
+const TABS = ["Details", "Members", "Settings"];
 
 export default function TenantDetail() {
   const { tenantId } = useParams();
   const navigate = useNavigate();
-  const { getTenantById } = useTenants();
+  const { getTenantById,deleteTenant } = useTenants();
   const tenant = getTenantById(tenantId);
 
   const [activeTab, setActiveTab] = useState("Details");
+  const [confirmModalOpen, setConfirmModalOpen] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   const data = [
     {
@@ -52,6 +59,33 @@ export default function TenantDetail() {
       label: "Country",
     },
   ];
+
+
+  async function handleDelete(e){
+    e.preventDefault();
+    setApiError("");
+    setDeleteLoading(true);
+    const result = await deleteTenant(confirmModalOpen?.id);
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
+
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(", ");
+
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to delete tenant");
+      }
+
+      setDeleteLoading(false);
+      return;
+    }
+    setDeleteLoading(false);
+    setConfirmModalOpen(null);
+    navigate("/tenants");
+  }
 
   if (!tenant) {
     return (
@@ -162,6 +196,34 @@ export default function TenantDetail() {
       )}
 
       {activeTab === "Members" && <TenantMembers id={tenant?.id} />}
+
+      {activeTab === "Settings" && (
+          <div>
+            <br />
+            <div className="w-full flex gap-4 justify-between items-center bg-bg px-4 py-4 rounded-lg">
+              <div>
+                <p className="text-xl font-medium">Delete Account</p>
+                <p className="text-sm">Remove this tenant</p>
+              </div>
+              <div>
+                <Button onClick={() => setConfirmModalOpen(tenant)}>
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>
+      )}
+      {confirmModalOpen?.id && <Modal title="Delete Tenant" onClose={() => setConfirmModalOpen(false)} width={300}>
+        <div className="w-full flex flex-col gap-4">
+          <ErrorMessage message={apiError} />
+          <p>Are you sure you want to delete ?</p>
+          <div className="w-full flex gap-1 items-center justify-end">
+            <Button variant="primary" onClick={(e) => handleDelete(e)} loading={deleteLoading} disabled={deleteLoading}>
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>}
     </div>
   );
 }

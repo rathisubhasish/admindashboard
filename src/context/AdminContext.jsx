@@ -57,12 +57,36 @@ export function AdminProvider({ children }) {
     }
   }, []);
 
+  const deleteAdmin = useCallback(async (id) => {
+    try {
+      const result = await adminService.deleteAdmin(id);
+
+      if (!result.success) {
+        return result;
+      }
+
+      setAdmins((prev) =>
+          prev.filter((admin) => admin.id !== id)
+      );
+
+      return result;
+    } catch (error) {
+      console.error("Failed to delete admin:", error);
+
+      return {
+        success: false,
+        error,
+      };
+    }
+  }, []);
+
   const value = {
     admins,
     isLoading,
     error,
     addAdmin,
     loadAdmins,
+    deleteAdmin,
   };
 
   return (
