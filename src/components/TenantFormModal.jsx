@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { LuUpload } from "react-icons/lu";
 import Modal from "../common/Modal/Modal";
 import Input from "../common/Input/Input";
+import FileUpload from "../common/FileUpload/FileUpload.jsx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { tenantSchema } from "../schemas/tenant/tenantSchema.js";
@@ -21,8 +21,8 @@ const EMPTY_FORM = {
 };
 export default function TenantFormModal({ onClose }) {
   const { addTenant } = useTenants();
-  const [logoFile, setLogoFile] = useState(null);
-  const [logoPreview, setLogoPreview] = useState("");
+  const [logoObjectKey, setLogoObjectKey] = useState("");
+  const [isUploadingLogo, setUploadingLogo] = useState(false);
   const [apiError, setApiError] = useState("");
   const {
     register,
@@ -32,18 +32,12 @@ export default function TenantFormModal({ onClose }) {
     resolver: zodResolver(tenantSchema),
     defaultValues: EMPTY_FORM,
   });
-  function handleLogoChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLogoFile(file);
-    setLogoPreview(URL.createObjectURL(file));
-  }
   async function onFormSubmit(data) {
     setApiError("");
 
     const result = await addTenant({
       ...data,
-      logoFile,
+      logoUrl: logoObjectKey,
     });
 
     if (!result.success) {
@@ -71,26 +65,23 @@ export default function TenantFormModal({ onClose }) {
         <br />
         <form onSubmit={handleSubmit(onFormSubmit)}>
           {/* Logo */}
-          <div className="mb-[20px] flex flex-col items-center gap-[8px]">
-            <label className="flex h-[72px] w-[72px] cursor-pointer items-center justify-center overflow-hidden rounded-full border-[1.5px] border-dashed border-border bg-primary-light text-primary-text">
-              {logoPreview ? (
-                <img
-                  src={logoPreview}
-                  alt="Logo preview"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <LuUpload size={20} />
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
-                hidden
-              />
-            </label>
-            <span className="text-[12px] text-text-secondary">Upload logo</span>
-          </div>
+          <FileUpload
+            id="tenant-logo"
+            label="Upload logo"
+            variant="avatar"
+            accept="image/*"
+            disabled={isSubmitting}
+            className="mb-[20px]"
+            onUploadStart={() => {
+              setUploadingLogo(true);
+              setLogoObjectKey("");
+            }}
+            onUploadComplete={({ objectKey }) => {
+              setUploadingLogo(false);
+              setLogoObjectKey(objectKey);
+            }}
+            onUploadError={() => setUploadingLogo(false)}
+          />
           {/* Fields */}
           <div className="grid grid-cols-2 gap-x-[16px] gap-y-[14px]">
             <Input
@@ -155,7 +146,7 @@ export default function TenantFormModal({ onClose }) {
             <Button
               type="submit"
               variant={"primary"}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isUploadingLogo}
               loading={isSubmitting}
             >
               {isSubmitting ? "Adding" : "Add Tenant"}

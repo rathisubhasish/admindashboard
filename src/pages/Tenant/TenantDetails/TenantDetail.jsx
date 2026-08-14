@@ -117,15 +117,18 @@ export default function TenantDetail() {
       </button>
 
       <div className="flex items-center gap-4">
-        <div className="rounded-full bg-primary-light text-primary-text flex items-center justify-center font-semibold overflow-hidden w-14 h-14 text-xl">
-          {tenant.logoPreview ? (
+        <div className="relative rounded-full bg-primary-light text-primary-text flex items-center justify-center font-semibold overflow-hidden w-14 h-14 text-xl">
+          {tenant.name.charAt(0).toUpperCase()}
+          {tenant.logoUrl && (
             <img
-              src={tenant.logoPreview}
+              src={tenant.logoUrl}
               alt={tenant.name}
-              className="w-full h-full object-cover"
+              // Presigned URLs expire — fall back to the initial behind it.
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+              className="absolute inset-0 w-full h-full object-cover"
             />
-          ) : (
-            tenant.name.charAt(0).toUpperCase()
           )}
         </div>
         <div>

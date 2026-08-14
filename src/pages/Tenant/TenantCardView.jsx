@@ -14,15 +14,18 @@ export default function TenantCardView({ filteredTenants }) {
         >
           <div className="w-full flex flex-col flex-grow">
             <div className="w-full flex justify-start items-center px-4 py-4 gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-light text-[13px] font-semibold text-primary-text">
-                {tenant?.logoPreview ? (
+              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-light text-[13px] font-semibold text-primary-text">
+                {tenant?.name?.charAt(0).toUpperCase()}
+                {tenant?.logoUrl && (
                   <img
-                    src={tenant.logoPreview}
+                    src={tenant.logoUrl}
                     alt={tenant?.name}
-                    className="h-full w-full object-cover"
+                    // Presigned URLs expire — fall back to the initial behind it.
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
-                ) : (
-                  tenant?.name?.charAt(0).toUpperCase()
                 )}
               </div>
               <div className="w-full flex flex-col justify-center items-start">
