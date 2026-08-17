@@ -197,15 +197,18 @@ export default function Tenants() {
                 headers={TENANT_HEADERS}
                 data={filteredTenants}
                 rows={filteredTenants.map((tenant) => [
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-light text-[13px] font-semibold text-primary-text">
-                    {tenant.logoPreview ? (
+                  <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-light text-[13px] font-semibold text-primary-text">
+                    {tenant.name.charAt(0).toUpperCase()}
+                    {tenant.logoUrl && (
                       <img
-                        src={tenant.logoPreview}
+                        src={tenant.logoUrl}
                         alt={tenant.name}
-                        className="h-full w-full object-cover"
+                        // Presigned URLs expire — fall back to the initial behind it.
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                        className="absolute inset-0 h-full w-full object-cover"
                       />
-                    ) : (
-                      tenant.name.charAt(0).toUpperCase()
                     )}
                   </div>,
 
