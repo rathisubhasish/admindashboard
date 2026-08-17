@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LuPlus, LuBuilding2, LuEye, LuSearch } from "react-icons/lu";
 import TenantFormModal from "../../components/TenantFormModal";
@@ -10,6 +10,9 @@ import { TbTableImport } from "react-icons/tb";
 import { BiCard } from "react-icons/bi";
 import TenantCardSkeleton from "../../components/TenantCard/TenantCardSkeleton.jsx";
 import TableSkeleton from "../../common/Table/TableSkeleton.jsx";
+import TableActions from "../../common/TableActions/TableActions.jsx";
+import Modal from "../../common/Modal/Modal.jsx";
+import ErrorMessage from "../../common/Error/Error.jsx";
 
 const TENANT_HEADERS = [
   "Logo",
@@ -26,8 +29,12 @@ const TENANT_HEADERS = [
 ];
 
 export default function Tenants() {
-  const { tenants, isLoading, error } = useTenants();
+  const { tenants, isLoading, error, refreshTenants, deleteTenant } =
+    useTenants();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
   const [search, setSearch] = useState("");
   const [cardView, setCardView] = useState(true);
   const navigate = useNavigate();
@@ -41,6 +48,36 @@ export default function Tenants() {
       ),
     );
   }, [tenants, search]);
+
+  async function handleDelete(e) {
+    e.preventDefault();
+    setApiError("");
+    setDeleteLoading(true);
+    const result = await deleteTenant(confirmModalOpen?.id);
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
+
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
+
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to delete tenant");
+      }
+
+      setDeleteLoading(false);
+      return;
+    }
+    setDeleteLoading(false);
+    setConfirmModalOpen(null);
+    refreshTenants();
+  }
+
+  useEffect(() => {
+    refreshTenants();
+  }, [refreshTenants]);
 
   return (
     <div className="relative mb-24">
@@ -126,11 +163,11 @@ export default function Tenants() {
       </Button>
 
       {isLoading ? (
-          cardView
-          ?
-        <TenantCardSkeleton count={8} />
-              :
-              <TableSkeleton />
+        cardView ? (
+          <TenantCardSkeleton count={8} />
+        ) : (
+          <TableSkeleton />
+        )
       ) : error ? (
         <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
           <LuBuilding2 size={28} className="text-primary-text mb-1" />
@@ -155,9 +192,10 @@ export default function Tenants() {
           {cardView ? (
             <TenantCardView filteredTenants={filteredTenants ?? []} />
           ) : (
-            <div className="w-full min-w-0 max-w-full overflow-x-auto">
+            <div className="w-full min-w-0 max-w-full overflow-x-auto relative">
               <Table
                 headers={TENANT_HEADERS}
+                data={filteredTenants}
                 rows={filteredTenants.map((tenant) => [
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary-light text-[13px] font-semibold text-primary-text">
                     {tenant.logoPreview ? (
@@ -182,17 +220,26 @@ export default function Tenants() {
                   tenant.country || "—",
                   (tenant.verified ? "true" : "false") || "—",
                 ])}
-                actions={(_row, index) => (
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-[7px] text-[13px] font-medium text-text-primary transition-colors duration-150 hover:bg-primary-light"
-                    onClick={() =>
-                      navigate(`/tenants/${filteredTenants[index].id}`)
-                    }
-                  >
-                    <LuEye size={14} />
-                    View
-                  </button>
+                actions={(tenant, index) => (
+                  <TableActions
+                    actions={[
+                      {
+                        type: "view",
+                        label: "View",
+                        onClick: () =>
+                          navigate(`/tenants/${filteredTenants[index].id}`),
+                      },
+                      {
+                        type: "edit",
+                        label: "Edit",
+                      },
+                      {
+                        type: "delete",
+                        label: "Delete",
+                        onClick: () => setConfirmModalOpen(tenant),
+                      },
+                    ]}
+                  />
                 )}
               />
             </div>
@@ -201,6 +248,28 @@ export default function Tenants() {
       )}
 
       {isModalOpen && <TenantFormModal onClose={() => setModalOpen(false)} />}
+      {confirmModalOpen?.id && (
+        <Modal
+          title="Delete tenant"
+          onClose={() => setConfirmModalOpen(false)}
+          width={300}
+        >
+          <div className="w-full flex flex-col gap-4">
+            <ErrorMessage message={apiError} />
+            <p>Are you sure you want to delete ?</p>
+            <div className="w-full flex gap-1 items-center justify-end">
+              <Button
+                variant="primary"
+                onClick={(e) => handleDelete(e)}
+                loading={deleteLoading}
+                disabled={deleteLoading}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

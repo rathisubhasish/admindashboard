@@ -10,7 +10,7 @@ export async function createAdmin(form) {
   return response;
 }
 
-export async function deleteAdmin(id){
+export async function deleteAdmin(id) {
   const response = await api.delete(`/admin/${id}`);
   return response;
 }

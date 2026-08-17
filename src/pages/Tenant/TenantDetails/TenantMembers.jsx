@@ -1,10 +1,14 @@
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "../../../common/Button/Button.jsx";
 import * as tenantService from "../../../services/tenantService.js";
-import { LuPlus, LuUsers} from "react-icons/lu";
+import { LuPlus, LuUsers } from "react-icons/lu";
 import Table from "../../../common/Table/Table.jsx";
 import TeamMemberFormModal from "../../../components/TeamMemberFormModal.jsx";
 import TableSkeleton from "../../../common/Table/TableSkeleton.jsx";
+import { AiOutlineDelete } from "react-icons/ai";
+import Modal from "../../../common/Modal/Modal.jsx";
+import ErrorMessage from "../../../common/Error/Error.jsx";
+import TableActions from "../../../common/TableActions/TableActions.jsx";
 
 export default function TenantMembers({ id }) {
   const [members, setMembers] = useState([]);
@@ -27,26 +31,53 @@ export default function TenantMembers({ id }) {
     "Last Login At",
   ];
 
+  const [confirmModalOpen, setConfirmModalOpen] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
-    const loadMembers = useCallback(async () => {
-        try {
-            setMembersLoading(true);
-            setError(null);
+  async function onDelete() {
+    setApiError("");
+    setDeleteLoading(true);
+    const result = await tenantService.deleteTenantUser(confirmModalOpen?.id);
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
 
-            const response = await tenantService.getMembers(id);
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
 
-            setMembers(response.data ?? []);
-        } catch (error) {
-            console.error("Failed to load tenants:", error);
-            setError(error);
-        } finally {
-            setMembersLoading(false);
-        }
-    }, [id]);
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to delete tenant user");
+      }
 
-    useEffect(() => {
-        loadMembers();
-    }, [loadMembers, needRefresh]);
+      setDeleteLoading(false);
+      return;
+    }
+    setDeleteLoading(false);
+    setConfirmModalOpen(null);
+  }
+
+  const loadMembers = useCallback(async () => {
+    try {
+      setMembersLoading(true);
+      setError(null);
+
+      const response = await tenantService.getMembers(id);
+
+      setMembers(response.data ?? []);
+    } catch (error) {
+      console.error("Failed to load tenants:", error);
+      setError(error);
+    } finally {
+      setMembersLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers, needRefresh]);
 
   return (
     <div className="overflow-y-scroll mb-24">
@@ -80,15 +111,15 @@ export default function TenantMembers({ id }) {
         {isMembersLoading ? (
           <TableSkeleton />
         ) : error ? (
-                <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
-                    <LuUsers size={28} className="text-primary-text mb-1" />
-                    <p className="text-text-primary font-semibold">
-                        Failed to load members
-                    </p>
+          <div className="bg-surface rounded-xl flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
+            <LuUsers size={28} className="text-primary-text mb-1" />
+            <p className="text-text-primary font-semibold">
+              Failed to load members
+            </p>
 
-                    <span className="text-[13px]">Please try again later.</span>
-                </div>
-            ) : members.length === 0 ? (
+            <span className="text-[13px]">Please try again later.</span>
+          </div>
+        ) : members.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-1.5 px-6 py-16 text-text-secondary">
             <LuUsers size={28} className="text-primary-text mb-1" />
             <p className="text-text-primary font-semibold">
@@ -109,6 +140,19 @@ export default function TenantMembers({ id }) {
               formatDate(member.created_at),
               formatDate(member.last_login_at),
             ])}
+            actions={() => (
+              <TableActions
+                actions={[
+                  {
+                    type: "delete",
+                    label: "Delete",
+                    onClick: () => {
+                      setConfirmModalOpen({ id: "sdfsdf" });
+                    },
+                  },
+                ]}
+              />
+            )}
           />
         )}
       </div>
@@ -135,6 +179,29 @@ export default function TenantMembers({ id }) {
           id={id}
           setNeedRefresh={setNeedRefresh}
         />
+      )}
+
+      {confirmModalOpen?.id && (
+        <Modal
+          title="Delete Member"
+          onClose={() => setConfirmModalOpen(false)}
+          width={300}
+        >
+          <div className="w-full flex flex-col gap-4">
+            <ErrorMessage message={apiError} />
+            <p>Are you sure you want to delete ?</p>
+            <div className="w-full flex gap-1 items-center justify-end">
+              <Button
+                variant="primary"
+                onClick={onDelete}
+                loading={deleteLoading}
+                disabled={deleteLoading}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
     </div>
   );
