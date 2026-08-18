@@ -191,7 +191,11 @@ export default function Tenants() {
       ) : (
         <div className="w-full min-w-0 max-w-full overflow-hidden">
           {cardView ? (
-            <TenantCardView filteredTenants={filteredTenants ?? []} setIsEditModalOpen={setIsEditModalOpen} setConfirmModalOpen={setConfirmModalOpen}/>
+            <TenantCardView
+              filteredTenants={filteredTenants ?? []}
+              setIsEditModalOpen={setIsEditModalOpen}
+              setConfirmModalOpen={setConfirmModalOpen}
+            />
           ) : (
             <div className="w-full min-w-0 max-w-full overflow-x-auto relative">
               <Table
@@ -276,7 +280,13 @@ export default function Tenants() {
         </Modal>
       )}
 
-      {isEditModalOpen && <TenantFormModal onClose={() => setIsEditModalOpen(null)} tenantData={isEditModalOpen} type="edit" />}
+      {isEditModalOpen && (
+        <TenantFormModal
+          onClose={() => setIsEditModalOpen(null)}
+          tenantData={isEditModalOpen}
+          type="edit"
+        />
+      )}
     </div>
   );
 }

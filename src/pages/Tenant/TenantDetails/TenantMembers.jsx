@@ -9,7 +9,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import Modal from "../../../common/Modal/Modal.jsx";
 import ErrorMessage from "../../../common/Error/Error.jsx";
 import TableActions from "../../../common/TableActions/TableActions.jsx";
-import {useOutletContext} from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
 export default function TenantMembers() {
   const { tenant } = useOutletContext();
@@ -33,7 +33,6 @@ export default function TenantMembers() {
     "Last Login At",
   ];
 
-
   const [confirmModalOpen, setConfirmModalOpen] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
@@ -41,7 +40,10 @@ export default function TenantMembers() {
   async function onDelete() {
     setApiError("");
     setDeleteLoading(true);
-    const result = await tenantService.deleteTenantUser(tenant?.id,confirmModalOpen?.id);
+    const result = await tenantService.deleteTenantUser(
+      tenant?.id,
+      confirmModalOpen?.id,
+    );
     if (!result.success) {
       const fieldErrors = result.error?.errors;
 
@@ -181,7 +183,7 @@ export default function TenantMembers() {
       {isModalOpen && (
         <TeamMemberFormModal
           onClose={() => setModalOpen(false)}
-          id={id}
+          id={tenant?.id}
           setNeedRefresh={setNeedRefresh}
         />
       )}

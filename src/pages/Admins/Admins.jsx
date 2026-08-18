@@ -155,17 +155,17 @@ export default function Admins() {
               ])}
               data={filteredAdmins}
               actions={(admin) => (
-                  <TableActions
-                      actions={[
-                        {
-                          type: "delete",
-                          label: "Delete",
-                          onClick: () => {
-                            setConfirmModalOpen(admin);
-                          }
-                        },
-                      ]}
-                  />
+                <TableActions
+                  actions={[
+                    {
+                      type: "delete",
+                      label: "Delete",
+                      onClick: () => {
+                        setConfirmModalOpen(admin);
+                      },
+                    },
+                  ]}
+                />
               )}
             />
           </div>

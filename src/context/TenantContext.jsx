@@ -65,11 +65,9 @@ export function TenantProvider({ children }) {
       const updatedTenant = tenant.data;
 
       setTenants((prev) =>
-          prev.map((tenant) =>
-              String(tenant.id) === String(id)
-                  ? updatedTenant
-                  : tenant
-          )
+        prev.map((tenant) =>
+          String(tenant.id) === String(id) ? updatedTenant : tenant,
+        ),
       );
 
       return tenant;

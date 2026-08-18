@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Modal from "../common/Modal/Modal";
 import Input from "../common/Input/Input";
 import FileUpload from "../common/FileUpload/FileUpload.jsx";
@@ -19,7 +19,11 @@ const EMPTY_FORM = {
   pinCode: "",
   country: "",
 };
-export default function TenantFormModal({ onClose, type="add", tenantData=null }) {
+export default function TenantFormModal({
+  onClose,
+  type = "add",
+  tenantData = null,
+}) {
   const { addTenant, updateTenant } = useTenants();
   const isEdit = type === "edit";
   const [logoObjectKey, setLogoObjectKey] = useState(tenantData?.logoUrl || "");
@@ -53,7 +57,7 @@ export default function TenantFormModal({ onClose, type="add", tenantData=null }
     }
   }, [isEdit, tenantData, reset]);
 
-  async function onFormEditSubmit(data){
+  async function onFormEditSubmit(data) {
     setApiError("");
 
     const result = await updateTenant(tenantData?.id, {
@@ -66,8 +70,8 @@ export default function TenantFormModal({ onClose, type="add", tenantData=null }
 
       if (Object.keys(fieldErrors || {}).length > 0) {
         const message = Object.entries(fieldErrors)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(", ");
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
 
         setApiError(message);
       } else {
@@ -107,7 +111,7 @@ export default function TenantFormModal({ onClose, type="add", tenantData=null }
     onClose();
   }
   return (
-    <Modal title={isEdit ? 'Edit Tenant' : 'Add Tenant'} onClose={onClose}>
+    <Modal title={isEdit ? "Edit Tenant" : "Add Tenant"} onClose={onClose}>
       <div className="w-full overflow-x-hidden">
         {apiError && <ErrorMessage message={apiError} variant={"background"} />}
         <br />
@@ -191,9 +195,7 @@ export default function TenantFormModal({ onClose, type="add", tenantData=null }
           </div>
           {/* Actions */}
           <div className="mt-[24px] flex justify-end gap-[10px] ">
-            {
-              isEdit
-                ?
+            {isEdit ? (
               <Button
                 type="submit"
                 variant={"primary"}
@@ -202,16 +204,16 @@ export default function TenantFormModal({ onClose, type="add", tenantData=null }
               >
                 {isSubmitting ? "Editing" : "Edit Tenant"}
               </Button>
-              :
+            ) : (
               <Button
-                  type="submit"
-                  variant={"primary"}
-                  disabled={isSubmitting || isUploadingLogo}
-                  loading={isSubmitting}
+                type="submit"
+                variant={"primary"}
+                disabled={isSubmitting || isUploadingLogo}
+                loading={isSubmitting}
               >
                 {isSubmitting ? "Adding" : "Add Tenant"}
               </Button>
-            }
+            )}
           </div>
         </form>
       </div>
