@@ -123,7 +123,7 @@ export default function TenantDetail() {
       </div>
 
       <div>
-        <Outlet context={{ tenant }}/>
+        <Outlet context={{ tenant }} />
       </div>
     </div>
   );
