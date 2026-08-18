@@ -15,6 +15,11 @@ export async function createTenant(form) {
   return response;
 }
 
+export async function editTenant(id, form) {
+  const response = await api.put(`/admin/tenant/${id}`, form);
+  return response;
+}
+
 export async function createMember(tenantId, form) {
   const response = await api.post(`/admin/tenant/${tenantId}/user`, form);
 

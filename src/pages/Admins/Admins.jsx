@@ -9,6 +9,7 @@ import AdminFormModal from "../../components/AdminFormModal.jsx";
 import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
 import Modal from "../../common/Modal/Modal.jsx";
 import ErrorMessage from "../../common/Error/Error.jsx";
+import TableActions from "../../common/TableActions/TableActions.jsx";
 
 const ADMIN_HEADERS = ["First Name", "Last Name", "Email", "Created At"];
 
@@ -154,16 +155,17 @@ export default function Admins() {
               ])}
               data={filteredAdmins}
               actions={(admin) => (
-                <Button
-                  variant="secondary"
-                  shape="pill"
-                  className="hover:!text-white"
-                  onClick={() => {
-                    setConfirmModalOpen(admin);
-                  }}
-                >
-                  <AiOutlineDelete size={16} />
-                </Button>
+                  <TableActions
+                      actions={[
+                        {
+                          type: "delete",
+                          label: "Delete",
+                          onClick: () => {
+                            setConfirmModalOpen(admin);
+                          }
+                        },
+                      ]}
+                  />
               )}
             />
           </div>

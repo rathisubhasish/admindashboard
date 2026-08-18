@@ -54,6 +54,35 @@ export function TenantProvider({ children }) {
     }
   }, []);
 
+  const updateTenant = useCallback(async (id, form) => {
+    try {
+      const tenant = await tenantService.editTenant(id, form);
+
+      if (!tenant.success) {
+        return tenant;
+      }
+
+      const updatedTenant = tenant.data;
+
+      setTenants((prev) =>
+          prev.map((tenant) =>
+              String(tenant.id) === String(id)
+                  ? updatedTenant
+                  : tenant
+          )
+      );
+
+      return tenant;
+    } catch (error) {
+      console.error("Failed to update tenant:", error);
+
+      return {
+        success: false,
+        error,
+      };
+    }
+  }, []);
+
   const getTenantById = useCallback(
     (tenantId) => {
       return (
@@ -89,6 +118,7 @@ export function TenantProvider({ children }) {
     isLoading,
     error,
     addTenant,
+    updateTenant,
     getTenantById,
     loadTenants,
     deleteTenant,

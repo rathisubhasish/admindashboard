@@ -9,8 +9,10 @@ import { AiOutlineDelete } from "react-icons/ai";
 import Modal from "../../../common/Modal/Modal.jsx";
 import ErrorMessage from "../../../common/Error/Error.jsx";
 import TableActions from "../../../common/TableActions/TableActions.jsx";
+import {useOutletContext} from "react-router-dom";
 
-export default function TenantMembers({ id }) {
+export default function TenantMembers() {
+  const { tenant } = useOutletContext();
   const [members, setMembers] = useState([]);
   const [isMembersLoading, setMembersLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,6 +33,7 @@ export default function TenantMembers({ id }) {
     "Last Login At",
   ];
 
+
   const [confirmModalOpen, setConfirmModalOpen] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
@@ -38,7 +41,7 @@ export default function TenantMembers({ id }) {
   async function onDelete() {
     setApiError("");
     setDeleteLoading(true);
-    const result = await tenantService.deleteTenantUser(confirmModalOpen?.id);
+    const result = await tenantService.deleteTenantUser(tenant?.id,confirmModalOpen?.id);
     if (!result.success) {
       const fieldErrors = result.error?.errors;
 
@@ -57,6 +60,7 @@ export default function TenantMembers({ id }) {
     }
     setDeleteLoading(false);
     setConfirmModalOpen(null);
+    setNeedRefresh(!needRefresh);
   }
 
   const loadMembers = useCallback(async () => {
@@ -64,7 +68,7 @@ export default function TenantMembers({ id }) {
       setMembersLoading(true);
       setError(null);
 
-      const response = await tenantService.getMembers(id);
+      const response = await tenantService.getMembers(tenant?.id);
 
       setMembers(response.data ?? []);
     } catch (error) {
@@ -73,7 +77,7 @@ export default function TenantMembers({ id }) {
     } finally {
       setMembersLoading(false);
     }
-  }, [id]);
+  }, [tenant?.id]);
 
   useEffect(() => {
     loadMembers();
@@ -140,14 +144,15 @@ export default function TenantMembers({ id }) {
               formatDate(member.created_at),
               formatDate(member.last_login_at),
             ])}
-            actions={() => (
+            data={members}
+            actions={(members) => (
               <TableActions
                 actions={[
                   {
                     type: "delete",
                     label: "Delete",
                     onClick: () => {
-                      setConfirmModalOpen({ id: "sdfsdf" });
+                      setConfirmModalOpen(members);
                     },
                   },
                 ]}

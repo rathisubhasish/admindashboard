@@ -38,6 +38,7 @@ export default function Tenants() {
   const [search, setSearch] = useState("");
   const [cardView, setCardView] = useState(true);
   const navigate = useNavigate();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const filteredTenants = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -190,7 +191,7 @@ export default function Tenants() {
       ) : (
         <div className="w-full min-w-0 max-w-full overflow-hidden">
           {cardView ? (
-            <TenantCardView filteredTenants={filteredTenants ?? []} />
+            <TenantCardView filteredTenants={filteredTenants ?? []} setIsEditModalOpen={setIsEditModalOpen} setConfirmModalOpen={setConfirmModalOpen}/>
           ) : (
             <div className="w-full min-w-0 max-w-full overflow-x-auto relative">
               <Table
@@ -235,6 +236,7 @@ export default function Tenants() {
                       {
                         type: "edit",
                         label: "Edit",
+                        onClick: () => setIsEditModalOpen(tenant),
                       },
                       {
                         type: "delete",
@@ -273,6 +275,8 @@ export default function Tenants() {
           </div>
         </Modal>
       )}
+
+      {isEditModalOpen && <TenantFormModal onClose={() => setIsEditModalOpen(null)} tenantData={isEditModalOpen} type="edit" />}
     </div>
   );
 }
