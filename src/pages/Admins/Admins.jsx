@@ -1,14 +1,15 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAdmins } from "../../context/AdminContext.jsx";
-import {LuBuilding2, LuEye, LuPlus, LuSearch} from "react-icons/lu";
+import { LuBuilding2, LuEye, LuPlus, LuSearch } from "react-icons/lu";
 import Button from "../../common/Button/Button.jsx";
 import Table from "../../common/Table/Table.jsx";
 import TableSkeleton from "../../common/Table/TableSkeleton.jsx";
 import AdminFormModal from "../../components/AdminFormModal.jsx";
-import {AiFillDelete, AiOutlineDelete} from "react-icons/ai";
+import { AiFillDelete, AiOutlineDelete } from "react-icons/ai";
 import Modal from "../../common/Modal/Modal.jsx";
 import ErrorMessage from "../../common/Error/Error.jsx";
+import TableActions from "../../common/TableActions/TableActions.jsx";
 
 const ADMIN_HEADERS = ["First Name", "Last Name", "Email", "Created At"];
 
@@ -30,28 +31,28 @@ export default function Admins() {
     );
   }, [admins, search]);
 
-  async function onDelete(){
-      setApiError("");
-      setDeleteLoading(true);
-      const result = await deleteAdmin(confirmModalOpen?.id);
-      if (!result.success) {
-          const fieldErrors = result.error?.errors;
+  async function onDelete() {
+    setApiError("");
+    setDeleteLoading(true);
+    const result = await deleteAdmin(confirmModalOpen?.id);
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
 
-          if (Object.keys(fieldErrors || {}).length > 0) {
-              const message = Object.entries(fieldErrors)
-                  .map(([key, value]) => `${key}: ${value}`)
-                  .join(", ");
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(", ");
 
-              setApiError(message);
-          } else {
-              setApiError(result.error?.message || "Failed to delete admin");
-          }
-
-          setDeleteLoading(false);
-          return;
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to delete admin");
       }
+
       setDeleteLoading(false);
-      setConfirmModalOpen(null);
+      return;
+    }
+    setDeleteLoading(false);
+    setConfirmModalOpen(null);
   }
 
   return (
@@ -154,34 +155,46 @@ export default function Admins() {
               ])}
               data={filteredAdmins}
               actions={(admin) => (
-                  <Button
-                      variant="secondary"
-                      shape="pill"
-                      className="hover:!text-white"
-                      onClick={() =>{
-                          setConfirmModalOpen(admin);
-                      }}
-                  >
-                      <AiOutlineDelete size={16}/>
-                  </Button>
+                  <TableActions
+                      actions={[
+                        {
+                          type: "delete",
+                          label: "Delete",
+                          onClick: () => {
+                            setConfirmModalOpen(admin);
+                          }
+                        },
+                      ]}
+                  />
               )}
             />
           </div>
         </div>
       )}
-        {isModalOpen && <AdminFormModal onClose={() => setModalOpen(false)} />}
+      {isModalOpen && <AdminFormModal onClose={() => setModalOpen(false)} />}
 
-        {confirmModalOpen?.id && <Modal title="Delete Admin" onClose={() => setConfirmModalOpen(false)} width={300}>
-            <div className="w-full flex flex-col gap-4">
-                <ErrorMessage message={apiError} />
-                <p>Are you sure you want to delete ?</p>
-                <div className="w-full flex gap-1 items-center justify-end">
-                    <Button variant="primary" onClick={onDelete} loading={deleteLoading} disabled={deleteLoading}>
-                        Delete
-                    </Button>
-                </div>
+      {confirmModalOpen?.id && (
+        <Modal
+          title="Delete Admin"
+          onClose={() => setConfirmModalOpen(false)}
+          width={300}
+        >
+          <div className="w-full flex flex-col gap-4">
+            <ErrorMessage message={apiError} />
+            <p>Are you sure you want to delete ?</p>
+            <div className="w-full flex gap-1 items-center justify-end">
+              <Button
+                variant="primary"
+                onClick={onDelete}
+                loading={deleteLoading}
+                disabled={deleteLoading}
+              >
+                Delete
+              </Button>
             </div>
-        </Modal>}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

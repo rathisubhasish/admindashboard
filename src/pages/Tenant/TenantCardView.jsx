@@ -2,8 +2,9 @@ import TenantCard from "../../components/TenantCard/TenantCard.jsx";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineVerified } from "react-icons/md";
 import { MdOutlinePending } from "react-icons/md";
+import TableActions from "../../common/TableActions/TableActions.jsx";
 
-export default function TenantCardView({ filteredTenants }) {
+export default function TenantCardView({ filteredTenants, setIsEditModalOpen, setConfirmModalOpen }) {
   const navigate = useNavigate();
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -35,6 +36,28 @@ export default function TenantCardView({ filteredTenants }) {
                 <p className="text-sm max-w-[80%] truncate flex-1">
                   {tenant?.email}
                 </p>
+              </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <TableActions
+                    actions={[
+                      {
+                        type: "view",
+                        label: "View",
+                        onClick: () =>
+                            navigate(`/tenants/${tenant.id}`),
+                      },
+                      {
+                        type: "edit",
+                        label: "Edit",
+                        onClick: () => setIsEditModalOpen(tenant),
+                      },
+                      {
+                        type: "delete",
+                        label: "Delete",
+                        onClick: () => setConfirmModalOpen(tenant),
+                      },
+                    ]}
+                />
               </div>
             </div>
             <hr className="border border-primary-light" />

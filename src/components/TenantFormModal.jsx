@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import Modal from "../common/Modal/Modal";
 import Input from "../common/Input/Input";
 import FileUpload from "../common/FileUpload/FileUpload.jsx";
@@ -19,19 +19,67 @@ const EMPTY_FORM = {
   pinCode: "",
   country: "",
 };
-export default function TenantFormModal({ onClose }) {
-  const { addTenant } = useTenants();
-  const [logoObjectKey, setLogoObjectKey] = useState("");
+export default function TenantFormModal({ onClose, type="add", tenantData=null }) {
+  const { addTenant, updateTenant } = useTenants();
+  const isEdit = type === "edit";
+  const [logoObjectKey, setLogoObjectKey] = useState(tenantData?.logoUrl || "");
   const [isUploadingLogo, setUploadingLogo] = useState(false);
   const [apiError, setApiError] = useState("");
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(tenantSchema),
     defaultValues: EMPTY_FORM,
   });
+
+  useEffect(() => {
+    if (isEdit && tenantData) {
+      reset({
+        name: tenantData.name || "",
+        legalName: tenantData.legalName || "",
+        mobile: tenantData.mobile || "",
+        email: tenantData.email || "",
+        address: tenantData.address || "",
+        city: tenantData.city || "",
+        state: tenantData.state || "",
+        pinCode: tenantData.pinCode || "",
+        country: tenantData.country || "",
+      });
+    } else {
+      reset(EMPTY_FORM);
+    }
+  }, [isEdit, tenantData, reset]);
+
+  async function onFormEditSubmit(data){
+    setApiError("");
+
+    const result = await updateTenant(tenantData?.id, {
+      ...data,
+      logoUrl: logoObjectKey,
+    });
+
+    if (!result.success) {
+      const fieldErrors = result.error?.errors;
+
+      if (Object.keys(fieldErrors || {}).length > 0) {
+        const message = Object.entries(fieldErrors)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(", ");
+
+        setApiError(message);
+      } else {
+        setApiError(result.error?.message || "Failed to edit tenant");
+      }
+
+      return;
+    }
+
+    onClose();
+  }
+
   async function onFormSubmit(data) {
     setApiError("");
 
@@ -59,11 +107,11 @@ export default function TenantFormModal({ onClose }) {
     onClose();
   }
   return (
-    <Modal title="Add Tenant" onClose={onClose}>
+    <Modal title={isEdit ? 'Edit Tenant' : 'Add Tenant'} onClose={onClose}>
       <div className="w-full overflow-x-hidden">
         {apiError && <ErrorMessage message={apiError} variant={"background"} />}
         <br />
-        <form onSubmit={handleSubmit(onFormSubmit)}>
+        <form onSubmit={handleSubmit(isEdit ? onFormEditSubmit : onFormSubmit)}>
           {/* Logo */}
           <FileUpload
             id="tenant-logo"
@@ -143,14 +191,27 @@ export default function TenantFormModal({ onClose }) {
           </div>
           {/* Actions */}
           <div className="mt-[24px] flex justify-end gap-[10px] ">
-            <Button
-              type="submit"
-              variant={"primary"}
-              disabled={isSubmitting || isUploadingLogo}
-              loading={isSubmitting}
-            >
-              {isSubmitting ? "Adding" : "Add Tenant"}
-            </Button>
+            {
+              isEdit
+                ?
+              <Button
+                type="submit"
+                variant={"primary"}
+                disabled={isSubmitting || isUploadingLogo}
+                loading={isSubmitting}
+              >
+                {isSubmitting ? "Editing" : "Edit Tenant"}
+              </Button>
+              :
+              <Button
+                  type="submit"
+                  variant={"primary"}
+                  disabled={isSubmitting || isUploadingLogo}
+                  loading={isSubmitting}
+              >
+                {isSubmitting ? "Adding" : "Add Tenant"}
+              </Button>
+            }
           </div>
         </form>
       </div>

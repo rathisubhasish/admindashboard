@@ -18,19 +18,16 @@ export function AuthProvider({ children }) {
         password: loginPassword,
       });
 
-      if (result.token) {
-        setToken(result.token);
+      if (result.data.token) {
+        setToken(result.data.token);
       }
 
-      const loggedInUser = JSON.stringify(result.user) || loginEmail;
+      const loggedInUser = JSON.stringify(result.data.user);
 
       localStorage.setItem(STORAGE_KEY, loggedInUser);
-      setUser(result?.user);
+      setUser(result?.data?.user);
 
-      return {
-        success: true,
-        data: result,
-      };
+      return result;
     } catch (error) {
       console.error("Login failed:", error);
       return {

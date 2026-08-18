@@ -65,9 +65,7 @@ export function AdminProvider({ children }) {
         return result;
       }
 
-      setAdmins((prev) =>
-          prev.filter((admin) => admin.id !== id)
-      );
+      setAdmins((prev) => prev.filter((admin) => admin.id !== id));
 
       return result;
     } catch (error) {

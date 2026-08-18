@@ -35,9 +35,52 @@ export function TenantProvider({ children }) {
   }, [loadTenants]);
 
   const addTenant = useCallback(async (form) => {
-    const tenant = await tenantService.createTenant(form);
-    setTenants((prev) => [...prev, tenant]);
-    return tenant;
+    try {
+      const tenant = await tenantService.createTenant(form);
+      if (!tenant.success) {
+        return tenant;
+      }
+
+      const newTenant = tenant.data;
+      setTenants((prev) => [...prev, newTenant]);
+      return tenant;
+    } catch (error) {
+      console.error("Failed to create tenant:", error);
+
+      return {
+        success: false,
+        error: error,
+      };
+    }
+  }, []);
+
+  const updateTenant = useCallback(async (id, form) => {
+    try {
+      const tenant = await tenantService.editTenant(id, form);
+
+      if (!tenant.success) {
+        return tenant;
+      }
+
+      const updatedTenant = tenant.data;
+
+      setTenants((prev) =>
+          prev.map((tenant) =>
+              String(tenant.id) === String(id)
+                  ? updatedTenant
+                  : tenant
+          )
+      );
+
+      return tenant;
+    } catch (error) {
+      console.error("Failed to update tenant:", error);
+
+      return {
+        success: false,
+        error,
+      };
+    }
   }, []);
 
   const getTenantById = useCallback(
@@ -57,9 +100,7 @@ export function TenantProvider({ children }) {
         return result;
       }
 
-      setTenants((prev) =>
-          prev.filter((tenant) => tenant.id !== id)
-      );
+      setTenants((prev) => prev.filter((tenant) => tenant.id !== id));
 
       return result;
     } catch (error) {
@@ -77,9 +118,11 @@ export function TenantProvider({ children }) {
     isLoading,
     error,
     addTenant,
+    updateTenant,
     getTenantById,
     loadTenants,
     deleteTenant,
+    refreshTenants: loadTenants,
   };
 
   return (

@@ -10,6 +10,9 @@ import TenantDetail from "./pages/Tenant/TenantDetails/TenantDetail";
 import Settings from "./pages/Settings/Settings";
 import { AdminProvider } from "./context/AdminContext.jsx";
 import Admins from "./pages/Admins/Admins.jsx";
+import TenantMembers from "./pages/Tenant/TenantDetails/TenantMembers.jsx";
+import TenantSettings from "./pages/Tenant/TenantDetails/TenantSettings.jsx";
+import TenantData from "./pages/Tenant/TenantDetails/TenantData.jsx";
 
 function App() {
   return (
@@ -23,7 +26,11 @@ function App() {
               <Route element={<DashboardLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="tenants" element={<Tenants />} />
-                <Route path="tenants/:tenantId" element={<TenantDetail />} />
+                <Route path="tenants/:tenantId" element={<TenantDetail />}>
+                  <Route index element={<TenantData />} />
+                  <Route path="members" element={<TenantMembers />} />
+                  <Route path="settings" element={<TenantSettings />} />
+                </Route>
                 <Route path="admins" element={<Admins />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
